@@ -78,9 +78,9 @@ def cleanse(resources):
 def build_parser():
 	"""Parse command line args"""
 	parser = argparse.ArgumentParser(description=__doc__, formatter_class = argparse.ArgumentDefaultsHelpFormatter)
-	parser.add_argument('urls', metavar='U', type=str, nargs='+', help="the URL(s) for which to check connectivity")
-	parser.add_argument('-s', '--stream', action='store_true', default=False, required=False, help="if included, URL status will be updated and displayed every 10 seconds")
-	parser.add_argument('-d', '--delay', type=int, default=10, required=False, help="if streaming, the delay between in updates, in seconds (minimum is 10)")
+	parser.add_argument('urls', metavar='url_or_ip', type=str, nargs='+', help="the URL(s) or IP address(es) for which to check status")
+	parser.add_argument('-s', '--stream', action='store_true', default=False, required=False, help="if included, status will be streamed to stdout")
+	parser.add_argument('-d', '--delay', type=int, default=10, required=False, help="if streaming, the delay between updates, in seconds (minimum is 10)")
 	return parser
 
 def main():
