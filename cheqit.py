@@ -3,8 +3,21 @@ import sys
 import socket
 from urllib.parse import urlparse
 import os
+import time
 
-def cheqit(netlocs, stream):
+def cheqit(netlocs, stream, delay):
+	"""Handle cheqit"""
+	if stream:
+		while True:
+			statuses = get_status(netlocs)
+			display_statuses(statuses, show_timestamp=True)
+			time.sleep(delay)
+	else:
+		statuses = get_status(netlocs)
+		display_statuses(statuses)
+	return
+
+def get_status(netlocs):
 	"""Check status of each hostname or IP address"""
 	if len(netlocs) == 0:
 		raise ValueError('No valid URL(s) or IP address(es) detected')
@@ -15,12 +28,13 @@ def cheqit(netlocs, stream):
 		status = True if response == 0 else False
 		statuses[netloc] = status
 
-	display_statuses(statuses)
+	return statuses
 
-def display_statuses(statuses):
+def display_statuses(statuses, show_timestamp=False):
 	for netloc, status in statuses.items():
 		status_text = green("UP") if status else red("DOWN")
-		print(" {}: {}".format(netloc, status_text))
+		timestamp = ' ({})'.format(time.strftime("%Y-%m-%d %H:%M:%S")) if show_timestamp else ''
+		print(" {}: {}{}".format(netloc, status_text, timestamp))
 
 def red(text):
 	return f"\033[91m{text}\033[0m"
@@ -64,7 +78,7 @@ def main():
 		raise ValueError('No valid URL(s) or IP address(es) detected')
 
 	netlocs = cleanse(args.urls)
-	cheqit(netlocs, args.stream)
+	cheqit(netlocs, args.stream, 10)
 
 if __name__ == '__main__':
 	main()
