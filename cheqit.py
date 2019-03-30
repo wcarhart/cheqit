@@ -8,7 +8,8 @@ from urllib.parse import urlparse
 def cheqit(netlocs, stream, delay):
 	"""Handle cheqit process"""
 	if stream:
-		while True:
+		streaming = True
+		while streaming:
 			statuses = get_status(netlocs)
 			try:
 				display_statuses(statuses, show_timestamp=True)
@@ -21,7 +22,7 @@ def cheqit(netlocs, stream, delay):
 					print("\033[2A")
 			except KeyboardInterrupt:
 				print('')
-				sys.exit(0)
+				streaming = False
 	else:
 		statuses = get_status(netlocs)
 		display_statuses(statuses)
