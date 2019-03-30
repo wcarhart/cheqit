@@ -11,7 +11,7 @@ def cheqit(netlocs, stream):
 
 	statuses = {}
 	for netloc in netlocs:
-		response = os.system('ping -c 1 {}'.format(netloc))
+		response = os.system('ping -c 1 -t 2 {} > /dev/null'.format(netloc))
 		status = True if response == 0 else False
 		statuses[netloc] = status
 
@@ -35,11 +35,14 @@ def cleanse(resources):
 	for resource in resources:
 		url = urlparse(resource)
 		if url.netloc == '':
-			try:
-				socket.inet_aton(resource)
-				netlocs.append(resource)
-			except socket.error:
-				raise ValueError('Invalid IP or URL: {}'.format(resource))
+			if url.path == '':
+				try:
+					socket.inet_aton(resource)
+					netlocs.append(resource)
+				except socket.error:
+					raise ValueError('Invalid IP or URL: {}'.format(resource))
+			else:
+				netlocs.append(url.path)
 		else:
 			# strip off scheme (i.e., 'http') and path (i.e. '/stuff/after/hostname/')
 			netlocs.append(url.netloc)
