@@ -2,16 +2,25 @@ import argparse
 import sys
 import socket
 from urllib.parse import urlparse
-import os
 import time
+from subprocess import Popen, PIPE
 
 def cheqit(netlocs, stream, delay):
-	"""Handle cheqit"""
+	"""Handle cheqit process"""
 	if stream:
 		while True:
 			statuses = get_status(netlocs)
-			display_statuses(statuses, show_timestamp=True)
-			time.sleep(delay)
+			try:
+				display_statuses(statuses, show_timestamp=True)
+				time.sleep(delay)
+
+				statuses = get_status(netlocs)
+				for _ in range(0, len(netlocs)):
+					print("\033[A\033[K")
+					print("\033[2A")
+			except KeyboardInterrupt:
+				print('')
+				sys.exit(0)
 	else:
 		statuses = get_status(netlocs)
 		display_statuses(statuses)
@@ -24,7 +33,10 @@ def get_status(netlocs):
 
 	statuses = {}
 	for netloc in netlocs:
-		response = os.system('ping -c 1 -t 2 {} > /dev/null'.format(netloc))
+		cmd = 'ping -c 1 -t 2 {} 2>&1 >/dev/null'.format(netloc)
+		proc = Popen(cmd, stdout=PIPE, shell=True)
+		out, err = proc.communicate()
+		response = proc.returncode
 		status = True if response == 0 else False
 		statuses[netloc] = status
 
@@ -78,7 +90,7 @@ def main():
 		raise ValueError('No valid URL(s) or IP address(es) detected')
 
 	netlocs = cleanse(args.urls)
-	cheqit(netlocs, args.stream, 10)
+	cheqit(netlocs, args.stream, 2)
 
 if __name__ == '__main__':
 	main()
