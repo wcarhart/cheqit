@@ -12,10 +12,11 @@ def cheqit(netlocs, stream, delay):
 			statuses = get_status(netlocs)
 			try:
 				display_statuses(statuses, show_timestamp=True)
+				print("\n^C to exit...")
 				time.sleep(delay)
 
 				statuses = get_status(netlocs)
-				for _ in range(0, len(netlocs)):
+				for _ in range(0, len(netlocs)+2):
 					print("\033[A\033[K")
 					print("\033[2A")
 			except KeyboardInterrupt:
@@ -24,7 +25,6 @@ def cheqit(netlocs, stream, delay):
 	else:
 		statuses = get_status(netlocs)
 		display_statuses(statuses)
-	return
 
 def get_status(netlocs):
 	"""Check status of each hostname or IP address"""
@@ -78,8 +78,9 @@ def cleanse(resources):
 def build_parser():
 	"""Parse command line args"""
 	parser = argparse.ArgumentParser(description=__doc__, formatter_class = argparse.ArgumentDefaultsHelpFormatter)
-	parser.add_argument('urls', metavar='U', type=str, nargs='+', help='the URL(s) for which to check connectivity')
+	parser.add_argument('urls', metavar='U', type=str, nargs='+', help="the URL(s) for which to check connectivity")
 	parser.add_argument('-s', '--stream', action='store_true', default=False, required=False, help="if included, URL status will be updated and displayed every 10 seconds")
+	parser.add_argument('-d', '--delay', type=int, default=10, required=False, help="if streaming, the delay between in updates, in seconds (minimum is 10)")
 	return parser
 
 def main():
@@ -89,8 +90,11 @@ def main():
 	if not args.urls:
 		raise ValueError('No valid URL(s) or IP address(es) detected')
 
+	if args.delay < 10:
+		args.delay = 10
+
 	netlocs = cleanse(args.urls)
-	cheqit(netlocs, args.stream, 2)
+	cheqit(netlocs, args.stream, args.delay)
 
 if __name__ == '__main__':
 	main()
