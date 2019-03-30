@@ -1,9 +1,9 @@
 import argparse
-import sys
 import socket
-from urllib.parse import urlparse
+import sys
 import time
 from subprocess import Popen, PIPE
+from urllib.parse import urlparse
 
 def cheqit(netlocs, stream, delay):
 	"""Handle cheqit process"""
